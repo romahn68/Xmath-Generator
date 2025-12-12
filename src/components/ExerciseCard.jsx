@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import katex from 'katex';
 import { getExplanation, getEquation1Explanation, getEquation2Explanation } from '../utils/stepLogic';
+import { getAdditionVisual, getSubtractionVisual, getMultiplicationVisual } from '../utils/visualLogic';
 
 export function ExerciseCard({ numTop, numBottom, symbol, result, operation, showAnswer, isExample, equation, coefficients }) {
     const mathRef = useRef(null);
@@ -27,21 +28,51 @@ export function ExerciseCard({ numTop, numBottom, symbol, result, operation, sho
                     .replace(/−/g, '-');
                 latex = eqLatex;
             } else {
-                // Formato vertical para suma, resta, multiplicación
-                latex = `
-                    \\begin{array}{r}
-                        ${numTop} \\\\
-                        ${symbol} \\; ${numBottom} \\\\
-                    \\hline
-                    \\end{array}
-                `;
+                // Determine format based on state (solved vs unsolved)
+
+                // Si se debe mostrar la respuesta y no es un ejemplo (que tiene su propia lógica abajo)
+                // O incluso si es ejemplo podríamos querer mostrarlo visualmente
+                // El requerimiento decía "cuando se agrega el resultado aparezca la respuesta pero con procedimiento"
+
+                if (showAnswer) {
+                    switch (operation) {
+                        case 'suma':
+                            latex = getAdditionVisual(numTop, numBottom);
+                            break;
+                        case 'resta':
+                            latex = getSubtractionVisual(numTop, numBottom);
+                            break;
+                        case 'multiplicacion':
+                            latex = getMultiplicationVisual(numTop, numBottom);
+                            break;
+                        default:
+                            // Fallback
+                            latex = `
+                                \\begin{array}{r}
+                                    ${numTop} \\\\
+                                    ${symbol} \\; ${numBottom} \\\\
+                                \\hline
+                                    ${result}
+                                \\end{array}
+                            `;
+                    }
+                } else {
+                    // Estado inicial (sin respuesta)
+                    latex = `
+                        \\begin{array}{r}
+                            ${numTop} \\\\
+                            ${symbol} \\; ${numBottom} \\\\
+                        \\hline
+                        \\end{array}
+                    `;
+                }
             }
 
             katex.render(latex, mathRef.current, {
                 throwOnError: false
             });
         }
-    }, [numTop, numBottom, symbol, operation, result, equation, isEquation]);
+    }, [numTop, numBottom, symbol, operation, result, equation, isEquation, showAnswer]);
 
     // Obtener explicación según el tipo de operación
     const getSteps = () => {
@@ -71,7 +102,7 @@ export function ExerciseCard({ numTop, numBottom, symbol, result, operation, sho
             }
             return `x = ${result}`;
         }
-        return `= ${result}`;
+        return ``; // Vacío porque el resultado visual ya está en el LaTeX para operaciones básicas
     };
 
     return (
@@ -93,20 +124,24 @@ export function ExerciseCard({ numTop, numBottom, symbol, result, operation, sho
                 </div>
             )}
 
-            {showAnswer && (
+            {/* Para ecuaciones, seguimos mostrando el texto rojo de resultado. 
+                Para sumas/restas/mult, como ya lo muestra el gráfico, ocultamos el texto rojo redundante 
+                A MENOS que sea división (que no tiene visualLogic aún) */}
+
+            {showAnswer && (isEquation || operation === 'division') && (
                 <div style={{
                     marginTop: '12px',
                     fontSize: '1.25em',
                     color: '#ef4444',
                     fontWeight: 'bold'
                 }} className="no-print">
-                    {formatResult()}
+                    {operation === 'division' ? `= ${Math.floor(result)} (res: ${numTop % numBottom})` : formatResult()}
                 </div>
             )}
 
             {isExample && (
                 <div className="explanation-panel">
-                    <div className="explanation-title">Procedimiento:</div>
+                    <div className="explanation-title">Procedimiento detallado (Texto):</div>
                     <div className="explanation-steps-text">
                         {explanationSteps.map((step, idx) => (
                             <div key={idx} className={step.startsWith('**') ? 'step-header' : 'step-item'}>
