@@ -156,7 +156,6 @@ export function ExerciseCard({ numTop, numBottom, symbol, result, operation, sho
                             <input
                                 type="text"
                                 inputMode="decimal"
-                                placeholder="?"
                                 value={userAnswer}
                                 onChange={(e) => setUserAnswer(e.target.value)}
                                 onKeyDown={handleKeyDown}
