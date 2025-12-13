@@ -158,6 +158,14 @@ function App() {
                     );
                 })}
             </div>
+
+            <footer className="app-footer no-print">
+                <div className="footer-content">
+                    <p>Autor: <strong>Alan Romahn O.</strong></p>
+                    <p>Tester: (vacio)</p>
+                    <p className="footer-year">2025</p>
+                </div>
+            </footer>
         </div>
     );
 }
