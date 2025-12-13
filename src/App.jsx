@@ -116,7 +116,7 @@ function App() {
                             Generar
                         </button>
                         <button className="btn btn-secondary" onClick={toggleAnswers}>
-                            {showAnswers ? 'Ocultar Respuestas' : 'Ver Respuestas'}
+                            {showAnswers ? 'Ocultar Respuestas' : 'Revelar Todas'}
                         </button>
                         <button className="btn btn-neutral" onClick={handlePrint}>
                             Imprimir
