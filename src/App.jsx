@@ -304,8 +304,10 @@ function App() {
 
             <footer className="app-footer no-print">
                 <div className="footer-content">
-                    <p>Creado con ❤️ para el aprendizaje de las matemáticas</p>
-                    <p>Autor: <strong>Alan Romahn O.</strong> • 2026</p>
+                    <h2 className="footer-logo">Xmath Gen</h2>
+                    <div className="footer-divider"></div>
+                    <p className="footer-design">Design: <strong>Alan Romahn</strong> 2026</p>
+                    <p className="footer-rights">Todos los derechos reservados.</p>
                 </div>
             </footer>
         </div>
