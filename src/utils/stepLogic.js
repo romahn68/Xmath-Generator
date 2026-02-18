@@ -351,3 +351,178 @@ export function getEquation2Explanation(coefficients) {
 
     return steps;
 }
+
+
+/**
+ * Genera explicación para álgebra avanzada
+ */
+export function getAlgebraExplanation(operation, coefficients) {
+    const steps = [];
+    if (!coefficients) return steps;
+
+    if (operation === 'trinomio') {
+        const { r1, r2, b, c } = coefficients;
+        steps.push(`**Caso: Trinomio de la forma x² + bx + c**`);
+        steps.push(`Buscamos dos números que multiplicados den ${c} y sumados den ${b}.`);
+        steps.push(`Números: ${r1} y ${r2}`);
+        steps.push(`Comprobación:`);
+        steps.push(`    Multiplicación: (${r1}) × (${r2}) = ${c}`);
+        steps.push(`    Suma: (${r1}) + (${r2}) = ${b}`);
+        steps.push(`Formamos los factores (x + r₁) y (x + r₂) cuidando los signos.`);
+        steps.push(`**✓ Solución: (x ${r1 >= 0 ? '+ ' + r1 : r1}) (x ${r2 >= 0 ? '+ ' + r2 : r2})**`);
+    } else if (operation === 'prod_notable') {
+        const { type, a, b, sign } = coefficients;
+        if (type === 1) { // Binomio al cuadrado
+            steps.push(`**Caso: Cuadrado de un Binomio**`);
+            const opSign = sign === '+' ? '+' : '-';
+            steps.push(`Fórmula: (a ${opSign} b)² = a² ${opSign} 2ab + b²`);
+            steps.push(`Donde a = ${a === 1 ? 'x' : a + 'x'} y b = ${b}`);
+            const t1 = a * a;
+            const t2 = 2 * a * b;
+            const t3 = b * b;
+            steps.push(`1. Cuadrado del primero: (${a}x)² = ${t1 === 1 ? '' : t1}x²`);
+            steps.push(`2. Doble del primero por el segundo: 2(${a}x)(${b}) = ${t2}x`);
+            steps.push(`3. Cuadrado del segundo: ${b}² = ${t3}`);
+            steps.push(`**✓ Resultado: ${t1 === 1 ? '' : t1}x² ${opSign} ${t2}x + ${t3}**`);
+        } else if (type === 2) { // Binomios Conjugados
+            steps.push(`**Caso: Binomios Conjugados**`);
+            steps.push(`Fórmula: (a + b)(a - b) = a² - b²`);
+            steps.push(`Donde a = ${a === 1 ? 'x' : a + 'x'} y b = ${b}`);
+            steps.push(`Resultado es la diferencia de cuadrados:`);
+            steps.push(`**✓ Resultado: ${a * a === 1 ? '' : a * a}x² - ${b * b}**`);
+        } else { // Binomios con término común
+            steps.push(`**Caso: Producto de binomios con término común**`);
+            steps.push(`Fórmula: (x + a)(x + b) = x² + (a+b)x + ab`);
+            const sum = a + b;
+            const prod = a * b;
+            steps.push(`1. Término común al cuadrado: x²`);
+            steps.push(`2. Suma de no comunes por común: (${a} + ${b})x = ${sum}x`);
+            steps.push(`3. Producto de no comunes: (${a})(${b}) = ${prod}`);
+            steps.push(`**✓ Resultado: x² ${sum >= 0 ? '+ ' + sum : sum}x ${prod >= 0 ? '+ ' + prod : prod}**`);
+        }
+    } else if (operation === 'ecuacion_comp') {
+        const { a, b, c, d, x } = coefficients;
+        steps.push(`**Objetivo: Simplificar y resolver**`);
+        steps.push(`Ecuación: x² + ${a}x + ${b}x ${c >= 0 ? '+ ' + c : c} = ${d}`);
+        steps.push(`1. Agrupamos términos semejantes (x):`);
+        const b_total = a + b;
+        steps.push(`    ${a}x + ${b}x = ${b_total}x`);
+        steps.push(`    Nos queda: x² + ${b_total}x + ${c} = ${d}`);
+        steps.push(`2. Igualamos a cero pasando ${d} restando:`);
+        const c_final = c - d;
+        steps.push(`    x² + ${b_total}x + (${c} - ${d}) = 0`);
+        steps.push(`    x² + ${b_total}x ${c_final >= 0 ? '+ ' + c_final : c_final} = 0`);
+        steps.push(`3. Resolvemos la ecuación cuadrática (factorizando o fórmula).`);
+        steps.push(`    Buscamos dos números que sumados den ${b_total} y multiplicados ${c_final}.`);
+        steps.push(`    Son ${x} y algunas veces otro valor.`);
+        steps.push(`**✓ Solución principal verificada: x = ${x}**`);
+    }
+
+    return steps;
+}
+
+/**
+ * Genera explicación para cálculo diferencial
+ */
+export function getCalculusExplanation(operation, coefficients) {
+    const steps = [];
+    if (!coefficients) return steps;
+
+    if (operation === 'limite') {
+        const { type } = coefficients;
+        if (type === 1) { // Sustitución directa
+            const { al, bl, kl } = coefficients;
+            steps.push(`**Método: Sustitución Directa**`);
+            steps.push(`Evaluamos el límite reemplazando x por ${kl}:`);
+            steps.push(`L = ${al}(${kl}) ${bl >= 0 ? '+ ' + bl : '- ' + Math.abs(bl)}`);
+            steps.push(`Operamos:`);
+            const res = al * kl + bl;
+            steps.push(`L = ${al * kl} ${bl >= 0 ? '+ ' + bl : '- ' + Math.abs(bl)} = ${res}`);
+            steps.push(`**✓ Resultado: ${res}**`);
+        } else if (type === 2) { // 0/0 Factorización
+            const { al } = coefficients;
+            steps.push(`**Método: Factorización (Indeterminación 0/0)**`);
+            steps.push(`Si evaluamos x=${al}, obtenemos 0/0.`);
+            steps.push(`Factorizamos el numerador (Diferencia de Cuadrados):`);
+            steps.push(`x² - ${al * al} = (x - ${al})(x + ${al})`);
+            steps.push(`Simplificamos con el denominador (x - ${al}):`);
+            steps.push(`lim (x + ${al}) cuando x → ${al}`);
+            steps.push(`Ahora sustituimos:`);
+            steps.push(`${al} + ${al} = ${2 * al}`);
+            steps.push(`**✓ Resultado: ${2 * al}**`);
+        } else { // Infinito
+            const { al, bl } = coefficients;
+            steps.push(`**Método: Límites al Infinito**`);
+            steps.push(`Dividimos todo entre la mayor potencia de x (x²):`);
+            steps.push(`Numerador: ${al}x²/x² + x/x² → ${al} + 0`);
+            steps.push(`Denominador: ${bl}x²/x² - 1/x² → ${bl} - 0`);
+            steps.push(`El límite es el cociente de los coeficientes principales.`);
+            const res = al / bl; // Integer division usually
+            steps.push(`L = ${al} / ${bl} = ${res}`);
+            steps.push(`**✓ Resultado: ${res}**`);
+        }
+    } else if (operation === 'derivada') {
+        const { type } = coefficients;
+        if (type === 1) { // Potencia básica
+            const { ad, nd } = coefficients;
+            steps.push(`**Regla de la Potencia**`);
+            steps.push(`S i f(x) = axⁿ → f'(x) = a·n·xⁿ⁻¹`);
+            steps.push(`Identificamos: a = ${ad}, n = ${nd}`);
+            steps.push(`Multiplicamos exponente por coeficiente: ${ad} × ${nd} = ${ad * nd}`);
+            steps.push(`Restamos 1 al exponente: ${nd} - 1 = ${nd - 1}`);
+            steps.push(`**✓ Resultado: ${ad * nd}x^${nd - 1}**`);
+        } else if (type === 2) { // Producto
+            const { ad } = coefficients;
+            steps.push(`**Regla del Producto f(x) = u·v**`);
+            steps.push(`u = x² + 1  →  u' = 2x`);
+            steps.push(`v = ${ad}x    →  v' = ${ad}`);
+            steps.push(`Formula: u'v + uv'`);
+            steps.push(`(2x)(${ad}x) + (x² + 1)(${ad})`);
+            steps.push(`2${ad}x² + ${ad}x² + ${ad}`);
+            steps.push(`Agrupamos términos semejantes:`);
+            steps.push(`**✓ Resultado: ${3 * ad}x² + ${ad}**`);
+        } else { // Cadena
+            const { nd } = coefficients;
+            steps.push(`**Regla de la Cadena (Potencia Generalizada)**`);
+            steps.push(`f(x) = uⁿ → f'(x) = n·uⁿ⁻¹ · u'`);
+            steps.push(`u = x² + 1, n = ${nd}`);
+            steps.push(`Derivada interna u' = 2x`);
+            steps.push(`Aplicamos fórmula:`);
+            steps.push(`${nd}(x² + 1)^${nd - 1} · (2x)`);
+            steps.push(`Reordenamos:`);
+            steps.push(`**✓ Resultado: ${2 * nd}x(x² + 1)^${nd - 1}**`);
+        }
+    } else if (operation === 'evaluacion') {
+        const { a, b, c, k } = coefficients;
+        steps.push(`**Evaluación de Funciones**`);
+        steps.push(`Sustituimos x = ${k} en la función:`);
+        steps.push(`f(${k}) = ${a}(${k})² ${b >= 0 ? '+ ' + b : b}(${k}) ${c >= 0 ? '+ ' + c : c}`);
+        const t1 = a * k * k;
+        const t2 = b * k;
+        steps.push(`Calculamos potencias y productos:`);
+        steps.push(`    ${a}(${k * k}) = ${t1}`);
+        steps.push(`    ${b}(${k}) = ${t2}`);
+        steps.push(`Sumamos todo:`);
+        steps.push(`    ${t1} ${t2 >= 0 ? '+ ' + t2 : t2} ${c >= 0 ? '+ ' + c : c}`);
+        steps.push(`**✓ Resultado: ${t1 + t2 + c}**`);
+    } else if (operation === 'tvm') {
+        const { k, a, b } = coefficients;
+        steps.push(`**Tasa de Variación Media (TVM)**`);
+        steps.push(`Fórmula: [f(b) - f(a)] / (b - a)`);
+        steps.push(`Intervalo [a, b] = [${a}, ${b}]`);
+        steps.push(`Calculamos f(${b}):`);
+        const fb = b * b + k;
+        steps.push(`    f(${b}) = ${b}² + ${k} = ${fb}`);
+        steps.push(`Calculamos f(${a}):`);
+        const fa = a * a + k;
+        steps.push(`    f(${a}) = ${a}² + ${k} = ${fa}`);
+        steps.push(`Aplicamos la fórmula:`);
+        steps.push(`    TVM = (${fb} - ${fa}) / (${b} - ${a})`);
+        const num = fb - fa;
+        const den = b - a;
+        steps.push(`    TVM = ${num} / ${den}`);
+        steps.push(`**✓ Resultado: ${num / den}**`);
+    }
+
+    return steps;
+}
