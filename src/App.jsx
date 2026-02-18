@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
 import { generateExercises } from './utils/mathLogic';
 import { ExerciseCard } from './components/ExerciseCard';
@@ -29,33 +29,44 @@ function App() {
     const [isAdmin, setIsAdmin] = useState(false);
     const [showAdmin, setShowAdmin] = useState(false);
 
+    // Ref to hold stats for callbacks without triggering re-renders
+    const statsRef = useRef(stats);
+    useEffect(() => {
+        statsRef.current = stats;
+    }, [stats]);
+
     // New States
     const [showHistory, setShowHistory] = useState(false);
     const [countdown, setCountdown] = useState(null); // null, 3, 2, 1
 
-    const handleLogin = async (currentUser) => {
+    const handleLogin = useCallback(async (currentUser) => {
         setUser(currentUser);
-        // Sync stats
-        const syncedStats = await syncUserStats(currentUser, stats);
-        if (syncedStats) setStats(syncedStats);
+        // Sync stats using ref to avoid dependency loop
+        try {
+            const currentStats = statsRef.current;
+            const syncedStats = await syncUserStats(currentUser, currentStats);
+            if (syncedStats) setStats(syncedStats);
 
-        // Log access
-        await logAccess(currentUser);
+            // Log access
+            await logAccess(currentUser);
 
-        // Check for admin role
-        const userRef = doc(db, "users", currentUser.uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists() && userSnap.data().role === 'admin') {
-            setIsAdmin(true);
+            // Check for admin role
+            const userRef = doc(db, "users", currentUser.uid);
+            const userSnap = await getDoc(userRef);
+            if (userSnap.exists() && userSnap.data().role === 'admin') {
+                setIsAdmin(true);
+            }
+        } catch (error) {
+            console.error("Error in login flow:", error);
         }
-    };
+    }, []);
 
-    const handleLogout = () => {
+    const handleLogout = useCallback(() => {
         setUser(null);
         setIsAdmin(false);
         setShowAdmin(false);
         setStats(getStats()); // Revert to local stats
-    };
+    }, []);
 
     const handleResult = (isCorrect) => {
         const newStats = recordResult(isCorrect);
