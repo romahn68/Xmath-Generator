@@ -4,12 +4,12 @@ import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, where,
 
 // TODO: Replace with your project's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyD4nAVU3JYRqz1Vw1GG8iXDOkXFzADAOks",
-    authDomain: "xmath-app.firebaseapp.com",
-    projectId: "xmath-app",
-    storageBucket: "xmath-app.firebasestorage.app",
-    messagingSenderId: "831570771981",
-    appId: "1:831570771981:web:683c34a839c55fb350d544"
+    apiKey: "AIzaSyDWJH8of_W_GMmgKHLXlDeaOicd_18NGX4",
+    authDomain: "xmath-production.firebaseapp.com",
+    projectId: "xmath-production",
+    storageBucket: "xmath-production.firebasestorage.app",
+    messagingSenderId: "795468863052",
+    appId: "1:795468863052:web:cfe111042c25e4f1bfc6e9"
 };
 
 // Initialize Firebase
