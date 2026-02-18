@@ -10,6 +10,12 @@ export function ExerciseCard({ numTop, numBottom, symbol, result, operation, sho
     const [status, setStatus] = useState('pending'); // 'pending', 'correct', 'incorrect', 'revealed'
 
     useEffect(() => {
+        // Reset state when exercise changes
+        setUserAnswer('');
+        setStatus('pending');
+    }, [numTop, numBottom, symbol, operation, result, equation, coefficients]);
+
+    useEffect(() => {
         if (globalShowAnswer) {
             setStatus('revealed');
         } else if (status === 'revealed') {
