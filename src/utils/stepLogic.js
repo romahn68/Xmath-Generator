@@ -422,8 +422,65 @@ export function getAlgebraExplanation(operation, coefficients) {
 }
 
 /**
- * Genera explicación para cálculo diferencial
+ * Genera explicación para operaciones de polinomios
  */
+export function getPolynomialExplanation(operation, coefficients) {
+    const steps = [];
+    if (!coefficients) return steps;
+
+    if (operation === 'poly_add' || operation === 'poly_sub') {
+        const { a1, b1, a2, b2, op } = coefficients;
+        steps.push(`**Suma o Resta de Polinomios**`);
+        steps.push(`Polinomio 1: ${a1}x ${b1 > 0 ? '+ ' + b1 : b1 === 0 ? '' : b1}`);
+        steps.push(`Polinomio 2: ${a2}x ${b2 > 0 ? '+ ' + b2 : b2 === 0 ? '' : b2}`);
+        steps.push(`Agrupamos términos semejantes:`);
+
+        let a2_eff = op === '+' ? a2 : -a2;
+        let b2_eff = op === '+' ? b2 : -b2;
+
+        steps.push(`Para las x: (${a1}) ${op} (${a2}) = ${a1 + a2_eff}`);
+        steps.push(`Para las constantes: (${b1}) ${op} (${b2}) = ${b1 + b2_eff}`);
+
+        const a_res = a1 + a2_eff;
+        const b_res = b1 + b2_eff;
+
+        let resultStr = `${a_res === 0 ? '' : a_res === 1 ? 'x' : a_res === -1 ? '-x' : a_res + 'x'}${b_res === 0 && a_res !== 0 ? '' : b_res >= 0 && a_res !== 0 ? ' + ' + b_res : b_res >= 0 ? b_res : ' - ' + Math.abs(b_res)}`;
+        if (resultStr === '') resultStr = '0';
+
+        steps.push(`**✓ Resultado: ${resultStr}**`);
+    } else if (operation === 'poly_mul') {
+        const { type } = coefficients;
+        if (type === 1) { // Monomio por Binomio
+            const { am, b1, b2 } = coefficients;
+            steps.push(`**Multiplicación: Monomio por Binomio**`);
+            steps.push(`Aplicamos propiedad distributiva:`);
+            steps.push(`${am}x · (x²) = ${am * b1}x³`);
+            steps.push(`${am}x · (${b2}) = ${am * b2}x`);
+            steps.push(`**✓ Resultado: ${am * b1}x³ ${am * b2 > 0 ? '+ ' + (am * b2) : (am * b2)}x**`);
+        } else { // Binomio por Binomio
+            const { a1, b1, a2, b2 } = coefficients;
+            steps.push(`**Multiplicación: Binomio por Binomio**`);
+            steps.push(`Multiplicamos cada término del primero por cada término del segundo (FOIL):`);
+            steps.push(`1. Primeros: (${a1}x) · (${a2}x) = ${a1 * a2}x²`);
+            steps.push(`2. Externos: (${a1}x) · (${b2}) = ${a1 * b2}x`);
+            steps.push(`3. Internos: (${b1}) · (${a2}x) = ${b1 * a2}x`);
+            steps.push(`4. Últimos: (${b1}) · (${b2}) = ${b1 * b2}`);
+
+            const r_x = a1 * b2 + b1 * a2;
+            steps.push(`Agrupamos los términos con x: ${a1 * b2}x + ${b1 * a2}x = ${r_x}x`);
+
+            const r_a2 = a1 * a2;
+            const r_c = b1 * b2;
+
+            steps.push(`**✓ Resultado: ${r_a2}x² ${r_x > 0 ? '+ ' + r_x : r_x}x ${r_c > 0 ? '+ ' + r_c : r_c}**`);
+        }
+    }
+
+    return steps;
+}
+
+/**
+ * Genera explicación para cálculo diferencial e integral
 export function getCalculusExplanation(operation, coefficients) {
     const steps = [];
     if (!coefficients) return steps;
@@ -506,22 +563,68 @@ export function getCalculusExplanation(operation, coefficients) {
         steps.push(`    ${t1} ${t2 >= 0 ? '+ ' + t2 : t2} ${c >= 0 ? '+ ' + c : c}`);
         steps.push(`**✓ Resultado: ${t1 + t2 + c}**`);
     } else if (operation === 'tvm') {
-        const { k, a, b } = coefficients;
+        const { a_coeff, b_coeff, c_coeff, a, b } = coefficients;
         steps.push(`**Tasa de Variación Media (TVM)**`);
         steps.push(`Fórmula: [f(b) - f(a)] / (b - a)`);
         steps.push(`Intervalo [a, b] = [${a}, ${b}]`);
+
+        // Helper to format function string
+        const formatF = (x) => {
+            let res = '';
+            // ax^2
+            res += `${a_coeff}(${x})²`;
+            // bx
+            if (b_coeff !== 0) res += ` ${b_coeff > 0 ? '+ ' + b_coeff : b_coeff}(${x})`;
+            // c
+            if (c_coeff !== 0) res += ` ${c_coeff > 0 ? '+ ' + c_coeff : c_coeff}`;
+            return res;
+        };
+
         steps.push(`Calculamos f(${b}):`);
-        const fb = b * b + k;
-        steps.push(`    f(${b}) = ${b}² + ${k} = ${fb}`);
+        const fb = a_coeff * b * b + b_coeff * b + c_coeff;
+        steps.push(`    f(${b}) = ${formatF(b)} = ${fb}`);
+
         steps.push(`Calculamos f(${a}):`);
-        const fa = a * a + k;
-        steps.push(`    f(${a}) = ${a}² + ${k} = ${fa}`);
+        const fa = a_coeff * a * a + b_coeff * a + c_coeff;
+        steps.push(`    f(${a}) = ${formatF(a)} = ${fa}`);
+
         steps.push(`Aplicamos la fórmula:`);
-        steps.push(`    TVM = (${fb} - ${fa}) / (${b} - ${a})`);
+        steps.push(`    TVM = (${fb} - (${fa})) / (${b} - (${a}))`);
         const num = fb - fa;
         const den = b - a;
         steps.push(`    TVM = ${num} / ${den}`);
         steps.push(`**✓ Resultado: ${num / den}**`);
+    } else if (operation === 'int_def') {
+        const { type } = coefficients;
+        steps.push(`**Integral Definida**`);
+        if (type === 1) {
+            const { c_b, a, b } = coefficients;
+            steps.push(`Función: f(x) = ${c_b}x`);
+            steps.push(`Antiderivada: F(x) = (${c_b}/2)x² = ${c_b/2}x²`);
+            steps.push(`Evaluamos en los límites: F(${b}) - F(${a})`);
+            const fb = (c_b/2) * b * b;
+            const fa = (c_b/2) * a * a;
+            steps.push(`F(${b}) = ${c_b/2}(${b})² = ${fb}`);
+            steps.push(`F(${a}) = ${c_b/2}(${a})² = ${fa}`);
+            steps.push(`**✓ Resultado: ${fb} - (${fa}) = ${fb - fa}**`);
+        } else if (type === 2) {
+            const { c_a, c_c, a, b } = coefficients;
+            steps.push(`Función: f(x) = ${c_a}x² ${c_c >= 0 ? '+ ' + c_c : c_c}`);
+            steps.push(`Antiderivada: F(x) = (${c_a}/3)x³ ${c_c >= 0 ? '+ ' + c_c : c_c}x = ${c_a/3}x³ ${c_c >= 0 ? '+ ' + c_c : c_c}x`);
+            steps.push(`Evaluamos en los límites: F(${b}) - F(${a})`);
+            const fb = (c_a/3) * b * b * b + c_c * b;
+            const fa = (c_a/3) * a * a * a + c_c * a;
+            steps.push(`F(${b}) = ${fb}`);
+            steps.push(`F(${a}) = ${fa}`);
+            steps.push(`**✓ Resultado: ${fb} - (${fa}) = ${fb - fa}**`);
+        } else {
+            const { c_c, a, b } = coefficients;
+            steps.push(`Función: f(x) = ${c_c} (Constante)`);
+            steps.push(`Integral de una constante es el área de un rectángulo: base × altura`);
+            steps.push(`Base: ${b} - (${a}) = ${b - a}`);
+            steps.push(`Altura: ${c_c}`);
+            steps.push(`**✓ Resultado: ${c_c} × ${b - a} = ${c_c * (b - a)}**`);
+        }
     }
 
     return steps;

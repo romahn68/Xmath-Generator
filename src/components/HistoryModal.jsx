@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const HistoryModal = ({ challenges, onClose, onClear, userName }) => {
+export const HistoryModal = ({ challenges, onClose, onClear, onResetCounters, userName }) => {
     return (
         <div className="history-modal no-print">
             <div className="history-content">
@@ -44,9 +44,14 @@ export const HistoryModal = ({ challenges, onClose, onClear, userName }) => {
                 </div>
 
                 <div className="history-footer">
-                    <button onClick={onClear} className="btn btn-danger-outline">
-                        🗑️ Borrar Historial
-                    </button>
+                    <div>
+                        <button onClick={onClear} className="btn btn-danger-outline" style={{ marginRight: '10px' }} title="Borrar historial del cronómetro">
+                            🗑️ Historial
+                        </button>
+                        <button onClick={onResetCounters} className="btn btn-danger-outline" title="Reiniciar Rachas y Estadísticas">
+                            🔄 Contadores
+                        </button>
+                    </div>
                     <button onClick={onClose} className="btn btn-primary">
                         Cerrar
                     </button>

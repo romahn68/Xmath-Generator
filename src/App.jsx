@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
 import { generateExercises } from './utils/mathLogic';
 import { ExerciseCard } from './components/ExerciseCard';
-import { getStats, recordResult, saveChallengeResult, clearHistory } from './utils/storage';
+import { getStats, recordResult, saveChallengeResult, clearHistory, resetCounters } from './utils/storage';
 import { Dashboard } from './components/Dashboard';
 import { Timer } from './components/Timer';
 import { Auth } from './components/Auth';
@@ -16,7 +16,8 @@ function App() {
         operation: 'add',
         digitsTop: 2,
         digitsBottom: 1,
-        count: 12
+        count: 12,
+        timeMinutes: 1
     });
 
     const [exercises, setExercises] = useState([]);
@@ -128,6 +129,14 @@ function App() {
         }
     };
 
+    const handleResetCounters = () => {
+        if (window.confirm('¿Estás seguro de reiniciar todos tus contadores (ejercicios y rachas) a cero? Esta acción no se puede deshacer.')) {
+            const newStats = resetCounters();
+            setStats(newStats);
+            if (user) syncUserStats(user, newStats);
+        }
+    };
+
     useEffect(() => {
         handleGenerate();
     }, []);
@@ -175,6 +184,7 @@ function App() {
                     challenges={stats.challenges}
                     onClose={() => setShowHistory(false)}
                     onClear={handleClearHistory}
+                    onResetCounters={handleResetCounters}
                     userName={user?.displayName}
                 />
             )}
@@ -220,11 +230,17 @@ function App() {
                                         <option value="tri">Trinomios (Factorización)</option>
                                         <option value="eq_comp">Ecuaciones (Simplificar)</option>
                                     </optgroup>
-                                    <optgroup label="Cálculo Diferencial">
+                                    <optgroup label="Polinomios">
+                                        <option value="poly_add">Suma de Polinomios</option>
+                                        <option value="poly_sub">Resta de Polinomios</option>
+                                        <option value="poly_mul">Multiplicación de Polinomios</option>
+                                    </optgroup>
+                                    <optgroup label="Cálculo">
                                         <option value="eval">Evaluación de Funciones</option>
                                         <option value="tvm">Tasa de Variación Media</option>
                                         <option value="lim">Límites</option>
                                         <option value="der">Derivadas</option>
+                                        <option value="int_def">Integrales Definidas</option>
                                     </optgroup>
                                     <option value="mix">¡Sorpréndeme! (Combinado)</option>
                                 </select>
@@ -242,6 +258,20 @@ function App() {
                                     style={{ width: '100px' }}
                                     onChange={handleChange}
                                 />
+                            </div>
+
+                            <div className="input-wrapper">
+                                <label htmlFor="timeMinutes">Tiempo (min)</label>
+                                <select
+                                    id="timeMinutes"
+                                    name="timeMinutes"
+                                    value={config.timeMinutes}
+                                    onChange={handleChange}
+                                >
+                                    {[1, 2, 3, 4, 5].map(min => (
+                                        <option key={min} value={min}>{min} {min === 1 ? 'Minuto' : 'Minutos'}</option>
+                                    ))}
+                                </select>
                             </div>
 
                             <div className="actions">
@@ -264,7 +294,7 @@ function App() {
                             {!challengeFinished ? (
                                 <>
                                     <div className="score-badge">Puntos: {score}</div>
-                                    <Timer duration={60} onTimeUp={endChallenge} />
+                                    <Timer duration={config.timeMinutes * 60} onTimeUp={endChallenge} />
                                     <button className="btn btn-neutral" onClick={resetChallenge}>Cancelar</button>
                                 </>
                             ) : (

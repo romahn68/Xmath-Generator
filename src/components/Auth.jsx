@@ -7,12 +7,23 @@ export const Auth = ({ onLogin, onLogout }) => {
     const [user, setUser] = React.useState(null);
 
     React.useEffect(() => {
+        let mounted = true;
         const unsubscribe = auth.onAuthStateChanged((u) => {
-            setUser(u);
-            if (u) onLogin(u);
-            else onLogout();
+            if (mounted) {
+                // Only trigger login/logout if the state actually changes from our perspective
+                setUser(prevUser => {
+                    if (prevUser?.uid !== u?.uid) {
+                        if (u) onLogin(u);
+                        else onLogout();
+                    }
+                    return u;
+                });
+            }
         });
-        return () => unsubscribe();
+        return () => {
+            mounted = false;
+            unsubscribe();
+        };
     }, [onLogin, onLogout]);
 
     const handleGoogleLogin = async () => {

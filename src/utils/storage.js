@@ -81,6 +81,23 @@ export const saveChallengeResult = (score, config) => {
     return stats;
 };
 
+export const resetCounters = () => {
+    const stats = getStats();
+    stats.lifetime = {
+        correct: 0,
+        incorrect: 0,
+        solved: 0,
+        bestStreak: 0
+    };
+    stats.currentStreak = 0;
+    stats.daily = {
+        date: new Date().toISOString().split('T')[0],
+        count: 0
+    };
+    saveStats(stats);
+    return stats;
+};
+
 export const clearHistory = () => {
     const stats = getStats();
     stats.challenges = [];

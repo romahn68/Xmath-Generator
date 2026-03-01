@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import katex from 'katex';
-import { getExplanation, getEquation1Explanation, getEquation2Explanation, getAlgebraExplanation, getCalculusExplanation } from '../utils/stepLogic';
+import { getExplanation, getEquation1Explanation, getEquation2Explanation, getAlgebraExplanation, getCalculusExplanation, getPolynomialExplanation } from '../utils/stepLogic';
 import { getAdditionVisual, getSubtractionVisual, getMultiplicationVisual } from '../utils/visualLogic';
 import { MathSymbolKeyboard } from './MathSymbolKeyboard';
 
@@ -25,7 +25,7 @@ export function ExerciseCard({ numTop, numBottom, symbol, result, operation, sho
     }, [globalShowAnswer]);
 
     const isEquation = operation === 'ecuacion1' || operation === 'ecuacion2' || operation === 'ecuacion_comp';
-    const isCalculus = ['evaluacion', 'tvm', 'limite', 'derivada', 'prod_notable', 'trinomio'].includes(operation);
+    const isCalculus = ['evaluacion', 'tvm', 'limite', 'derivada', 'prod_notable', 'trinomio', 'poly_add', 'poly_sub', 'poly_mul', 'int_def'].includes(operation);
 
     const checkAnswer = () => {
         if (!userAnswer) return;
@@ -35,17 +35,17 @@ export function ExerciseCard({ numTop, numBottom, symbol, result, operation, sho
 
         if (operation === 'division') {
             isCorrect = Math.abs(parseFloat(cleanUser) - Math.floor(result)) < 0.01;
-        } else if (isEquation || operation === 'evaluacion' || operation === 'tvm') {
+        } else if (isEquation || ['evaluacion', 'tvm', 'int_def'].includes(operation)) {
             const val = parseFloat(cleanUser);
             if (Array.isArray(result)) {
                 isCorrect = result.some(r => Math.abs(r - val) < 0.01);
             } else {
                 isCorrect = Math.abs(val - result) < 0.01;
             }
-        } else if (operation === 'limite' || operation === 'trinomio') {
+        } else if (['limite', 'trinomio'].includes(operation)) {
             const cleanResult = result.toString().toLowerCase().replace(/\s/g, '');
             isCorrect = cleanUser === cleanResult;
-        } else if (operation === 'derivada' || operation === 'prod_notable') {
+        } else if (['derivada', 'prod_notable', 'poly_add', 'poly_sub', 'poly_mul'].includes(operation)) {
             // Normalize result for comparison (remove spaces)
             const normResult = result.toString().toLowerCase().replace(/\s/g, '');
             // Simple normalization for user input (could be improved with a math parser)
@@ -104,7 +104,11 @@ export function ExerciseCard({ numTop, numBottom, symbol, result, operation, sho
             return getAlgebraExplanation(operation, coefficients);
         }
 
-        if (['evaluacion', 'tvm', 'limite', 'derivada'].includes(operation)) {
+        if (['poly_add', 'poly_sub', 'poly_mul'].includes(operation)) {
+            return getPolynomialExplanation(operation, coefficients);
+        }
+
+        if (['evaluacion', 'tvm', 'limite', 'derivada', 'int_def'].includes(operation)) {
             return getCalculusExplanation(operation, coefficients);
         }
 
