@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const Dashboard = ({ stats }) => {
-    const { lifetime, currentStreak, daily, challenges } = stats;
+    const { lifetime, currentStreak, daily } = stats;
 
     return (
         <div className="dashboard-container no-print">

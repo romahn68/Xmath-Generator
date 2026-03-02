@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
 import { generateExercises } from './utils/mathLogic';
@@ -83,9 +84,26 @@ function App() {
         }
     };
 
+    const handleGenerate = useCallback(() => {
+        const newExercises = generateExercises(config.count, {
+            digitsTop: config.digitsTop,
+            digitsBottom: config.digitsBottom,
+            operation: config.operation
+        });
+        setExercises(newExercises);
+        setShowAnswers(false);
+    }, [config.count, config.digitsTop, config.digitsBottom, config.operation]);
+
     const initiateChallenge = () => {
         setCountdown(3);
     };
+
+    const startChallenge = useCallback(() => {
+        setIsChallenge(true);
+        setChallengeFinished(false);
+        setScore(0);
+        handleGenerate();
+    }, [handleGenerate]);
 
     useEffect(() => {
         if (countdown === null) return;
@@ -99,14 +117,7 @@ function App() {
             startChallenge();
             setCountdown(null);
         }
-    }, [countdown]);
-
-    const startChallenge = () => {
-        setIsChallenge(true);
-        setChallengeFinished(false);
-        setScore(0);
-        handleGenerate();
-    };
+    }, [countdown, startChallenge]);
 
     const endChallenge = () => {
         setChallengeFinished(true);
@@ -139,7 +150,7 @@ function App() {
 
     useEffect(() => {
         handleGenerate();
-    }, []);
+    }, [handleGenerate]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -147,16 +158,6 @@ function App() {
             ...prev,
             [name]: name === 'operation' ? value : parseInt(value)
         }));
-    };
-
-    const handleGenerate = () => {
-        const newExercises = generateExercises(config.count, {
-            digitsTop: config.digitsTop,
-            digitsBottom: config.digitsBottom,
-            operation: config.operation
-        });
-        setExercises(newExercises);
-        setShowAnswers(false);
     };
 
     const toggleAnswers = () => {

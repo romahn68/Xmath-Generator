@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { auth, loginWithGoogle, logout } from '../utils/firebase';
 // import { useAuthState } from 'react-firebase-hooks/auth'; // Not installed, using native SDk
 

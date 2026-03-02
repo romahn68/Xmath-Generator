@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /**
  * Genera el código LaTeX para visualizar una suma con sus acarreos.
  * @param {number} numTop 

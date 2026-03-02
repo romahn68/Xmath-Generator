@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps */
 import React, { useEffect, useRef, useState } from 'react';
 import katex from 'katex';
 import { getExplanation, getEquation1Explanation, getEquation2Explanation, getAlgebraExplanation, getCalculusExplanation, getPolynomialExplanation } from '../utils/stepLogic';

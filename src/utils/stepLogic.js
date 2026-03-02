@@ -481,6 +481,7 @@ export function getPolynomialExplanation(operation, coefficients) {
 
 /**
  * Genera explicación para cálculo diferencial e integral
+ */
 export function getCalculusExplanation(operation, coefficients) {
     const steps = [];
     if (!coefficients) return steps;
@@ -600,20 +601,20 @@ export function getCalculusExplanation(operation, coefficients) {
         if (type === 1) {
             const { c_b, a, b } = coefficients;
             steps.push(`Función: f(x) = ${c_b}x`);
-            steps.push(`Antiderivada: F(x) = (${c_b}/2)x² = ${c_b/2}x²`);
+            steps.push(`Antiderivada: F(x) = (${c_b}/2)x² = ${c_b / 2}x²`);
             steps.push(`Evaluamos en los límites: F(${b}) - F(${a})`);
-            const fb = (c_b/2) * b * b;
-            const fa = (c_b/2) * a * a;
-            steps.push(`F(${b}) = ${c_b/2}(${b})² = ${fb}`);
-            steps.push(`F(${a}) = ${c_b/2}(${a})² = ${fa}`);
+            const fb = (c_b / 2) * b * b;
+            const fa = (c_b / 2) * a * a;
+            steps.push(`F(${b}) = ${c_b / 2}(${b})² = ${fb}`);
+            steps.push(`F(${a}) = ${c_b / 2}(${a})² = ${fa}`);
             steps.push(`**✓ Resultado: ${fb} - (${fa}) = ${fb - fa}**`);
         } else if (type === 2) {
             const { c_a, c_c, a, b } = coefficients;
             steps.push(`Función: f(x) = ${c_a}x² ${c_c >= 0 ? '+ ' + c_c : c_c}`);
-            steps.push(`Antiderivada: F(x) = (${c_a}/3)x³ ${c_c >= 0 ? '+ ' + c_c : c_c}x = ${c_a/3}x³ ${c_c >= 0 ? '+ ' + c_c : c_c}x`);
+            steps.push(`Antiderivada: F(x) = (${c_a}/3)x³ ${c_c >= 0 ? '+ ' + c_c : c_c}x = ${c_a / 3}x³ ${c_c >= 0 ? '+ ' + c_c : c_c}x`);
             steps.push(`Evaluamos en los límites: F(${b}) - F(${a})`);
-            const fb = (c_a/3) * b * b * b + c_c * b;
-            const fa = (c_a/3) * a * a * a + c_c * a;
+            const fb = (c_a / 3) * b * b * b + c_c * b;
+            const fa = (c_a / 3) * a * a * a + c_c * a;
             steps.push(`F(${b}) = ${fb}`);
             steps.push(`F(${a}) = ${fa}`);
             steps.push(`**✓ Resultado: ${fb} - (${fa}) = ${fb - fa}**`);
